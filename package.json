@@ -1,5 +1,5 @@
 {
-  "name": "snd",
+  "name": "camelot",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -12,11 +12,18 @@
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "prettier": "^3.6.2",
-    "turbo": "^2.5.5",
+    "turbo": "^2.5.8",
     "typescript": "5.7.3"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {
     "node": ">=20"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "core-js-pure",
+      "sharp"
+    ]
   }
 }
