@@ -4,6 +4,7 @@ import * as React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ProjectExplorer } from "@/components/project-explorer";
 import { ProjectHeaderCard } from "@/components/project-header-card";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -80,6 +81,9 @@ export default function Page() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div className="ml-auto px-4">
+            <ThemeToggle />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
