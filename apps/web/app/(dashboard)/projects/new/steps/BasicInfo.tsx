@@ -33,7 +33,7 @@ export default function BasicInfo({ formData, errors, onChange }: StepProps) {
             </SelectContent>
           </Select>
           {errors?.department && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.department}
             </p>
@@ -49,10 +49,10 @@ export default function BasicInfo({ formData, errors, onChange }: StepProps) {
             value={formData.projectName}
             onChange={(e) => onChange("projectName", e.target.value)}
             placeholder="Proje Adı Giriniz"
-            className={errors?.projectName ? "border-red-500" : ""}
+            className={errors?.projectName ? "border-[oklch(var(--destructive))]" : ""}
           />
           {errors?.projectName && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.projectName}
             </p>
@@ -74,7 +74,7 @@ export default function BasicInfo({ formData, errors, onChange }: StepProps) {
             </SelectContent>
           </Select>
           {errors?.projectResponsible && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.projectResponsible}
             </p>
@@ -96,7 +96,7 @@ export default function BasicInfo({ formData, errors, onChange }: StepProps) {
             </SelectContent>
           </Select>
           {errors?.projectStatus && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.projectStatus}
             </p>
@@ -131,7 +131,7 @@ export default function BasicInfo({ formData, errors, onChange }: StepProps) {
             </SelectContent>
           </Select>
           {errors?.projectType && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.projectType}
             </p>
@@ -183,7 +183,7 @@ export default function BasicInfo({ formData, errors, onChange }: StepProps) {
             </SelectContent>
           </Select>
           {errors?.neighborhood && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.neighborhood}
             </p>

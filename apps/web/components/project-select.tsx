@@ -39,15 +39,15 @@ import {
 
 // Basit görsel eşleştirme (kategoriye göre)
 const categoryImages: Record<string, string> = {
-  "Kamulaştırma":
+  Kamulaştırma:
     "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1200&auto=format&fit=crop",
-  "Arıtma":
+  Arıtma:
     "https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=1200&auto=format&fit=crop",
   "İçme Suyu":
     "https://images.unsplash.com/photo-1506807803488-8eafc15316c1?q=80&w=1200&auto=format&fit=crop",
   "Atık Su":
     "https://images.unsplash.com/photo-1556761175-4b46a572b88b?q=80&w=1200&auto=format&fit=crop",
-  "Sayaç":
+  Sayaç:
     "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
 };
 
@@ -57,6 +57,50 @@ const statuses: Array<Project["status"]> = [
   "Bekleyen",
 ];
 const priorities: Array<Project["priority"]> = ["Düşük", "Normal", "Yüksek"];
+
+// Semantik ton yardımcıları
+const tone = {
+  info:
+    "text-info border-[oklch(var(--info)/0.12)] bg-[oklch(var(--info)/0.06)] transition-colors hover:bg-[oklch(var(--info)/0.12)] hover:border-[oklch(var(--info)/0.18)]",
+  success:
+    "text-success border-[oklch(var(--success)/0.12)] bg-[oklch(var(--success)/0.06)] transition-colors hover:bg-[oklch(var(--success)/0.12)] hover:border-[oklch(var(--success)/0.18)]",
+  warning:
+    "text-warning border-[oklch(var(--warning)/0.12)] bg-[oklch(var(--warning)/0.06)] transition-colors hover:bg-[oklch(var(--warning)/0.12)] hover:border-[oklch(var(--warning)/0.18)]",
+  low:
+    "text-priority-low border-[oklch(var(--priority-low)/0.12)] bg-[oklch(var(--priority-low)/0.06)] transition-colors hover:bg-[oklch(var(--priority-low)/0.12)] hover:border-[oklch(var(--priority-low)/0.18)]",
+  normal:
+    "text-priority-normal border-[oklch(var(--priority-normal)/0.12)] bg-[oklch(var(--priority-normal)/0.06)] transition-colors hover:bg-[oklch(var(--priority-normal)/0.12)] hover:border-[oklch(var(--priority-normal)/0.18)]",
+  high:
+    "text-priority-high border-[oklch(var(--priority-high)/0.12)] bg-[oklch(var(--priority-high)/0.06)] transition-colors hover:bg-[oklch(var(--priority-high)/0.12)] hover:border-[oklch(var(--priority-high)/0.18)]",
+} as const;
+
+const getStatusChipClass = (s: Project["status"], active: boolean) => {
+  if (!active) return "cursor-pointer";
+  switch (s) {
+    case "Tamamlanan":
+      return tone.success;
+    case "Bekleyen":
+      return tone.warning;
+    default:
+      return tone.info;
+  }
+};
+
+const getPriorityChipClass = (p: Project["priority"], active: boolean) => {
+  if (!active) return "cursor-pointer";
+  switch (p) {
+    case "Yüksek":
+      return tone.high;
+    case "Normal":
+      return tone.normal;
+    case "Düşük":
+      return tone.low;
+    default:
+      return tone.normal;
+  }
+};
+
+const getInfoActiveClass = (active: boolean) => (active ? tone.info : "cursor-pointer");
 
 export function ProjectSelect() {
   const { isMobile, setOpen } = useSidebar();
@@ -95,13 +139,20 @@ export function ProjectSelect() {
     console.groupCollapsed("ProjectSelect: yükleme durumu");
     console.debug("isLoading:", isLoading, "projects:", projects.length);
     if (!isLoading && projects.length === 0) {
-      console.warn("Projects boş. Demo veri seti yüklenmedi ya da Providers devre dışı.");
+      console.warn(
+        "Projects boş. Demo veri seti yüklenmedi ya da Providers devre dışı."
+      );
     }
     console.groupEnd();
   }, [isLoading, projects]);
 
   React.useEffect(() => {
-    console.debug("ProjectSelect: filtreler", { query, category, status, priority });
+    console.debug("ProjectSelect: filtreler", {
+      query,
+      category,
+      status,
+      priority,
+    });
   }, [query, category, status, priority]);
 
   React.useEffect(() => {
@@ -124,7 +175,10 @@ export function ProjectSelect() {
               </SidebarMenuButton>
             </SheetTrigger>
 
-            <SheetContent side={isMobile ? "bottom" : "top"} className="max-h-[85vh]">
+            <SheetContent
+              side={isMobile ? "bottom" : "top"}
+              className="max-h-[85vh]"
+            >
               <SheetHeader>
                 <SheetTitle>Proje Seçimi</SheetTitle>
                 <SheetDescription>
@@ -147,7 +201,7 @@ export function ProjectSelect() {
                   size="sm"
                   onClick={() => {
                     // Basit yönlendirme – gerçek sayfa hazırsa güncellenebilir
-                    window.location.href = "/dashboard/projects/new";
+                    window.location.href = "/projects/new";
                   }}
                 >
                   <Plus className="mr-2 h-4 w-4" /> Yeni Proje Oluştur
@@ -160,9 +214,8 @@ export function ProjectSelect() {
                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
                   <Badge
                     onClick={() => setCategory(null)}
-                    className={`${
-                      category === null ? "bg-primary text-primary-foreground" : "cursor-pointer"
-                    } select-none`}
+                    variant="outline"
+                    className={`${getInfoActiveClass(category === null)} select-none`}
                   >
                     Tümü
                   </Badge>
@@ -170,11 +223,8 @@ export function ProjectSelect() {
                     <Badge
                       key={c}
                       onClick={() => setCategory(c)}
-                      className={`${
-                        category === c
-                          ? "bg-primary text-primary-foreground"
-                          : "cursor-pointer"
-                      } select-none`}
+                      variant="outline"
+                      className={`${getInfoActiveClass(category === c)} select-none`}
                     >
                       {c}
                     </Badge>
@@ -184,9 +234,8 @@ export function ProjectSelect() {
                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
                   <Badge
                     onClick={() => setStatus(null)}
-                    className={`${
-                      status === null ? "bg-secondary" : "cursor-pointer"
-                    } select-none`}
+                    variant="outline"
+                    className={`${getInfoActiveClass(status === null)} select-none`}
                   >
                     Durum: Tümü
                   </Badge>
@@ -194,9 +243,8 @@ export function ProjectSelect() {
                     <Badge
                       key={s}
                       onClick={() => setStatus(s)}
-                      className={`${
-                        status === s ? "bg-secondary" : "cursor-pointer"
-                      } select-none`}
+                      variant="outline"
+                      className={`${getStatusChipClass(s, status === s)} select-none`}
                     >
                       {s}
                     </Badge>
@@ -206,9 +254,8 @@ export function ProjectSelect() {
                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
                   <Badge
                     onClick={() => setPriority(null)}
-                    className={`${
-                      priority === null ? "bg-accent" : "cursor-pointer"
-                    } select-none`}
+                    variant="outline"
+                    className={`${getInfoActiveClass(priority === null)} select-none`}
                   >
                     Öncelik: Tümü
                   </Badge>
@@ -216,9 +263,8 @@ export function ProjectSelect() {
                     <Badge
                       key={p}
                       onClick={() => setPriority(p)}
-                      className={`${
-                        priority === p ? "bg-accent" : "cursor-pointer"
-                      } select-none`}
+                      variant="outline"
+                      className={`${getPriorityChipClass(p, priority === p)} select-none`}
                     >
                       {p}
                     </Badge>
@@ -233,11 +279,14 @@ export function ProjectSelect() {
                     Yükleniyor...
                   </div>
                 ) : filtered.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">Sonuç bulunamadı.</div>
+                  <div className="text-sm text-muted-foreground">
+                    Sonuç bulunamadı.
+                  </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {filtered.map((p, idx) => {
-                      const img = categoryImages[p.category] ??
+                      const img =
+                        categoryImages[p.category] ??
                         "https://images.unsplash.com/photo-1522199710521-72d69614c702?q=80&w=1200&auto=format&fit=crop";
                       return (
                         <div
@@ -257,33 +306,40 @@ export function ProjectSelect() {
                           <div className="p-3 space-y-2">
                             <div className="flex items-start justify-between gap-2">
                               <div className="min-w-0">
-                                <div className="font-medium truncate">{p.name}</div>
+                                <div className="font-medium truncate">
+                                  {p.name}
+                                </div>
                                 <div className="text-xs text-muted-foreground truncate">
                                   {p.description ?? "Açıklama mevcut değil"}
                                 </div>
                               </div>
                               {p.status === "Tamamlanan" ? (
-                                <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                                <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" />
                               ) : p.status === "Bekleyen" ? (
-                                <Clock className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                                <Clock className="h-4 w-4 text-warning flex-shrink-0" />
                               ) : null}
                             </div>
 
                             <div className="flex items-center justify-between">
-                              <Badge variant="outline">Öncelik: {p.priority}</Badge>
+                              <Badge variant="outline" className={`${getPriorityChipClass(p.priority, true)} select-none`}>
+                                Öncelik: {p.priority}
+                              </Badge>
                               <div className="flex items-center gap-2">
                                 <SheetClose asChild>
                                   <Button
-                                     size="sm"
-                                     variant="secondary"
-                                     onClick={() => {
-                                       console.debug("ProjectSelect: selectProject", { id: p.id, name: p.name });
-                                       selectProject(p);
-                                       if (isMobile) setOpen(false);
-                                     }}
-                                   >
-                                     Seç
-                                   </Button>
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() => {
+                                      console.debug(
+                                        "ProjectSelect: selectProject",
+                                        { id: p.id, name: p.name }
+                                      );
+                                      selectProject(p);
+                                      if (isMobile) setOpen(false);
+                                    }}
+                                  >
+                                    Seç
+                                  </Button>
                                 </SheetClose>
                               </div>
                             </div>

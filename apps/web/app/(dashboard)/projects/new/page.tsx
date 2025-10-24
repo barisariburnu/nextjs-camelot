@@ -3,20 +3,6 @@
 import * as React from "react";
 import { Button } from "@workspace/ui/components/button";
 import { Badge } from "@workspace/ui/components/badge";
-import { Separator } from "@workspace/ui/components/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@workspace/ui/components/breadcrumb";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@workspace/ui/components/sidebar";
 import {
   ArrowLeft,
   Save,
@@ -28,8 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AppSidebar } from "@/components/app-sidebar";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import BasicInfo from "./steps/BasicInfo";
 import Approvals from "./steps/Approvals";
 import Notes from "./steps/Notes";
@@ -297,7 +282,7 @@ export default function NewProjectPage() {
       toast.success("Proje başarıyla oluşturuldu!", {
         duration: 3000,
       });
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       toast.error("Proje oluşturulurken bir hata oluştu.", {
         duration: 3000,
@@ -348,170 +333,149 @@ export default function NewProjectPage() {
   };
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">Camelot</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Yeni Proje</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-          <div className="ml-auto px-4">
-            <ThemeToggle />
-          </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-bold">Yeni Proje</h1>
-                <p className="text-muted-foreground text-sm mt-1">
-                  Proje bilgilerini adım adım doldurun
-                </p>
-              </div>
-            </div>
-            <Badge variant="outline" className="gap-2">
-              <Clock className="h-4 w-4" />
-              Adım {currentStep} / {steps.length}
-            </Badge>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm font-medium text-foreground">
-                İlerleme
-              </span>
-              <span className="text-sm text-muted-foreground">
-                %{Math.round(progress)}
-              </span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          {/* Steps Navigation */}
-          <div className="flex items-center justify-center mb-8 overflow-x-auto px-4">
-            <div className="flex items-center gap-1 sm:gap-2 min-w-max">
-              {steps.map((step, index) => {
-                const Icon = step.icon;
-                const isActive = currentStep === step.id;
-                const isCompleted = currentStep > step.id;
-
-                return (
-                  <React.Fragment key={step.id}>
-                    <div
-                      className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg transition-all ${
-                        isActive
-                          ? "bg-primary text-primary-foreground shadow-md"
-                          : isCompleted
-                            ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-800"
-                            : "bg-muted text-muted-foreground border border-border"
-                      }`}
-                    >
-                      {isCompleted ? (
-                        <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-                      ) : (
-                        <Icon className="h-4 w-4 flex-shrink-0" />
-                      )}
-                      <span className="text-xs sm:text-sm font-medium whitespace-nowrap hidden sm:inline">
-                        {step.title}
-                      </span>
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div className="w-4 sm:w-8 h-px bg-border flex-shrink-0" />
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Form Content */}
-          <Card className="w-full">
-            <CardHeader className="pb-6">
-              <CardTitle className="flex items-center gap-2">
-                {React.createElement(activeStep.icon, {
-                  className: "h-5 w-5",
-                })}
-                {activeStep.title}
-              </CardTitle>
-              <CardDescription>
-                {currentStep === 1 && "Temel proje bilgilerini girin"}
-                {currentStep === 2 &&
-                  "Tesis bilgilerini ve onay tarihlerini girin"}
-                {currentStep === 3 && "Proje notlarını ekleyin"}
-                {currentStep === 4 && "Özet bilgileri ve genel verileri girin"}
-                {currentStep === 5 &&
-                  "Tüm bilgilerin önizlemesini görüntüleyin"}
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent className="pb-8">{renderStepContent()}</CardContent>
-          </Card>
-
-          {/* Navigation Buttons */}
-          <div className="flex items-center justify-between mt-8 max-w-6xl mx-auto">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Önceki
-            </Button>
-
-            <Button
-              variant="ghost"
-              className="mx-2"
-              onClick={() => router.back()}
-            >
-              Vazgeç
-            </Button>
-
-            {currentStep === steps.length ? (
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading}
-                className="gap-2 min-w-[120px]"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Kaydediliyor...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    Kaydet
-                  </>
-                )}
-              </Button>
-            ) : (
-              <Button onClick={handleNext} className="gap-2">
-                Sonraki
-                <ArrowLeft className="h-4 w-4 rotate-180" />
-              </Button>
-            )}
+    <DashboardLayout
+      className="py-6"
+      breadcrumbs={[
+        { label: "Yönetim Paneli", href: "/" },
+        { label: "Projeler", href: "/projects" },
+        { label: "Yeni Proje" },
+      ]}
+      right={
+        <Badge variant="outline" className="gap-2">
+          <Clock className="h-4 w-4" />
+          Adım {currentStep} / {steps.length}
+        </Badge>
+      }
+    >
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Yeni Proje</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Proje bilgilerini adım adım doldurun
+            </p>
           </div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium text-foreground">
+              İlerleme
+            </span>
+            <span className="text-sm text-muted-foreground">
+              %{Math.round(progress)}
+            </span>
+          </div>
+          <Progress value={progress} className="h-2" />
+        </div>
+
+        {/* Steps Navigation */}
+        <div className="flex items-center justify-center mb-8 overflow-x-auto px-4">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-max">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = currentStep === step.id;
+              const isCompleted = currentStep > step.id;
+
+              return (
+                <React.Fragment key={step.id}>
+                  <div
+                    className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg transition-all ${
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : isCompleted
+                          ? "bg-[oklch(var(--success)/0.10)] text-success border border-[oklch(var(--success)/0.20)]"
+                          : "bg-muted text-muted-foreground border border-border"
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                    ) : (
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                    )}
+                    <span className="text-xs sm:text-sm font-medium whitespace-nowrap hidden sm:inline">
+                      {step.title}
+                    </span>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className="w-4 sm:w-8 h-px bg-border flex-shrink-0" />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Form Content */}
+        <Card className="w-full">
+          <CardHeader className="pb-6">
+            <CardTitle className="flex items-center gap-2">
+              {React.createElement(activeStep.icon, {
+                className: "h-5 w-5",
+              })}
+              {activeStep.title}
+            </CardTitle>
+            <CardDescription>
+              {currentStep === 1 && "Temel proje bilgilerini girin"}
+              {currentStep === 2 &&
+                "Tesis bilgilerini ve onay tarihlerini girin"}
+              {currentStep === 3 && "Proje notlarını ekleyin"}
+              {currentStep === 4 && "Özet bilgileri ve genel verileri girin"}
+              {currentStep === 5 && "Tüm bilgilerin önizlemesini görüntüleyin"}
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="pb-8">{renderStepContent()}</CardContent>
+        </Card>
+
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between mt-8 max-w-6xl mx-auto">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Önceki
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="mx-2"
+            onClick={() => router.back()}
+          >
+            Vazgeç
+          </Button>
+
+          {currentStep === steps.length ? (
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="gap-2 min-w-[120px]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Kaydediliyor...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Kaydet
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button onClick={handleNext} className="gap-2">
+              Sonraki
+              <ArrowLeft className="h-4 w-4 rotate-180" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }

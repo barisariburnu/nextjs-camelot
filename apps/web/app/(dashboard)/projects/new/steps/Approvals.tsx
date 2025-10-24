@@ -24,10 +24,10 @@ export default function Approvals({ formData, errors, onChange }: StepProps) {
             type="date"
             value={formData.decisionDate}
             onChange={(e) => onChange("decisionDate", e.target.value)}
-            className={errors?.decisionDate ? "border-red-500" : ""}
+            className={errors?.decisionDate ? "border-[oklch(var(--destructive))]" : ""}
           />
           {errors?.decisionDate && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.decisionDate}
             </p>
@@ -53,10 +53,10 @@ export default function Approvals({ formData, errors, onChange }: StepProps) {
             type="date"
             value={formData.kykDate}
             onChange={(e) => onChange("kykDate", e.target.value)}
-            className={errors?.kykDate ? "border-red-500" : ""}
+            className={errors?.kykDate ? "border-[oklch(var(--destructive))]" : ""}
           />
           {errors?.kykDate && (
-            <p className="text-sm text-red-500 flex items-center gap-1">
+            <p className="text-sm text-destructive flex items-center gap-1">
               <AlertCircle className="h-4 w-4" />
               {errors.kykDate}
             </p>

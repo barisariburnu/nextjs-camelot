@@ -28,11 +28,11 @@ import { useProjectSelection } from "@/hooks/use-project-selection";
 // Genel menü öğeleri (proje seçili değilken)
 const generalNav = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
+    title: "Yönetim Paneli",
+    url: "/",
     icon: LayoutDashboard,
     isActive: true,
-    items: [{ title: "Genel Görünüm", url: "/dashboard" }],
+    items: [{ title: "Genel Görünüm", url: "/" }],
   },
   {
     title: "Duyurular",

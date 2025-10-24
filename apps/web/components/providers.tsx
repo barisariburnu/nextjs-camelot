@@ -329,6 +329,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableSystem
         disableTransitionOnChange
         enableColorScheme
+        storageKey="camelot-theme"
+        themes={["light", "dark"]}
       >
         {children}
       </NextThemesProvider>

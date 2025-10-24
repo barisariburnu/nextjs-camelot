@@ -155,13 +155,7 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Durum:</span>
                     <Badge
-                      variant={
-                        selectedProject.status === "Devam Eden"
-                          ? "default"
-                          : selectedProject.status === "Tamamlanan"
-                            ? "secondary"
-                            : "outline"
-                      }
+                      className={getStatusBadgeClass(selectedProject.status)}
                     >
                       {selectedProject.status}
                     </Badge>
@@ -172,10 +166,10 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
                       variant="outline"
                       className={
                         selectedProject.priority === "Yüksek"
-                          ? "border-red-200 text-red-700"
+                          ? "border-[oklch(var(--priority-high)/0.20)] text-priority-high"
                           : selectedProject.priority === "Normal"
-                            ? "border-blue-200 text-blue-700"
-                            : "border-gray-200 text-gray-700"
+                            ? "border-[oklch(var(--priority-normal)/0.20)] text-priority-normal"
+                            : "border-[oklch(var(--priority-low)/0.20)] text-priority-low"
                       }
                     >
                       {selectedProject.priority}
@@ -222,13 +216,13 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
                     </div>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-2xl font-bold text-success">
                       {Math.floor(Math.random() * 50) + 10}
                     </div>
                     <div className="text-xs text-muted-foreground">Görev</div>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-info">
                       {Math.floor(Math.random() * 10) + 1}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -236,7 +230,7 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
                     </div>
                   </div>
                   <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold text-orange-600">
+                    <div className="text-2xl font-bold text-warning">
                       {Math.floor(Math.random() * 30) + 5}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -247,11 +241,11 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
               </div>
 
               {/* Recent Activity */}
-              <div className="rounded-lg border p-4">
+              <div className="rounded-lg border p-4 border-[oklch(var(--border)/0.25)]">
                 <h4 className="font-medium mb-3">Son Aktiviteler</h4>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-[oklch(var(--success))]"></div>
                     <span className="text-muted-foreground">
                       Görev tamamlandı
                     </span>
@@ -260,7 +254,7 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-[oklch(var(--info))]"></div>
                     <span className="text-muted-foreground">
                       Yeni yorum eklendi
                     </span>
@@ -269,7 +263,7 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-[oklch(var(--warning))]"></div>
                     <span className="text-muted-foreground">
                       Dosya yüklendi
                     </span>
@@ -320,64 +314,64 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
         {viewMode === "grid" ? (
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-               {paginatedProjects.map((project) => (
-                 <div
-                   key={project.id}
-                   className="p-4 rounded-lg border transition-all hover:shadow-md border-border hover:border-primary/50 flex flex-col h-full"
-                 >
-                   <div className="flex items-start justify-between gap-2 mb-2">
-                     <Badge variant="outline" className="text-xs">
-                       {project.code}
-                     </Badge>
-                     <Badge 
-                       variant={project.status === "Devam Eden" ? "default" : 
-                               project.status === "Tamamlanan" ? "secondary" : "outline"}
-                       className="text-xs"
-                     >
-                       {project.status}
-                     </Badge>
-                   </div>
-                   
-                   <Tooltip>
-                     <TooltipTrigger asChild>
-                       <h4 className="font-medium text-sm mb-2 line-clamp-2 leading-tight">
-                         {project.name}
-                       </h4>
-                     </TooltipTrigger>
-                     <TooltipContent side="top" className="max-w-xs">
-                       {project.name}
-                     </TooltipContent>
-                   </Tooltip>
-                   
-                   <div className="space-y-1 mb-3 flex-grow">
-                     <div className="text-xs text-muted-foreground">
-                       {project.category}
-                     </div>
-                     <div className="text-xs text-muted-foreground">
-                       {project.owner}
-                     </div>
-                     <Badge 
-                       variant="outline" 
-                       className={`text-xs ${
-                         project.priority === "Yüksek" ? "border-red-200 text-red-700" :
-                         project.priority === "Normal" ? "border-blue-200 text-blue-700" :
-                         "border-gray-200 text-gray-700"
-                       }`}
-                     >
-                       {project.priority}
-                     </Badge>
-                   </div>
-                   
-                   <Button 
-                     size="sm" 
-                     className="w-full mt-auto"
-                     onClick={() => selectProject(project)}
-                     disabled={isLoading}
-                   >
-                     Projeyi Seç
-                   </Button>
-                 </div>
-               ))}
+              {paginatedProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="p-4 rounded-lg border transition-all hover:shadow-md border-border hover:border-primary/50 flex flex-col h-full"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <Badge variant="outline" className="text-xs">
+                      {project.code}
+                    </Badge>
+                    <Badge
+                      className={`${getStatusBadgeClass(project.status)} text-xs`}
+                    >
+                      {project.status}
+                    </Badge>
+                  </div>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <h4 className="font-medium text-sm mb-2 line-clamp-2 leading-tight">
+                        {project.name}
+                      </h4>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      {project.name}
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <div className="space-y-1 mb-3 flex-grow">
+                    <div className="text-xs text-muted-foreground">
+                      {project.category}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {project.owner}
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs ${
+                        project.priority === "Yüksek"
+                          ? "border-[oklch(var(--priority-high)/0.20)] text-priority-high"
+                          : project.priority === "Normal"
+                            ? "border-[oklch(var(--priority-normal)/0.20)] text-priority-normal"
+                            : "border-[oklch(var(--priority-low)/0.20)] text-priority-low"
+                      }`}
+                    >
+                      {project.priority}
+                    </Badge>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    className="w-full mt-auto"
+                    onClick={() => selectProject(project)}
+                    disabled={isLoading}
+                  >
+                    Projeyi Seç
+                  </Button>
+                </div>
+              ))}
 
               {filtered.length === 0 && (
                 <div className="col-span-full text-center py-12">
@@ -489,23 +483,16 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
                         variant="outline"
                         className={`text-xs ${
                           project.priority === "Yüksek"
-                            ? "border-red-200 text-red-700"
+                            ? "border-[oklch(var(--priority-high)/0.20)] text-priority-high"
                             : project.priority === "Normal"
-                              ? "border-blue-200 text-blue-700"
-                              : "border-gray-200 text-gray-700"
+                              ? "border-[oklch(var(--priority-normal)/0.20)] text-priority-normal"
+                              : "border-[oklch(var(--priority-low)/0.20)] text-priority-low"
                         }`}
                       >
                         {project.priority}
                       </Badge>
                       <Badge
-                        variant={
-                          project.status === "Devam Eden"
-                            ? "default"
-                            : project.status === "Tamamlanan"
-                              ? "secondary"
-                              : "outline"
-                        }
-                        className="text-xs"
+                        className={`${getStatusBadgeClass(project.status)} text-xs`}
                       >
                         {project.status}
                       </Badge>
@@ -601,3 +588,16 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
     </section>
   );
 }
+
+function getStatusBadgeClass(status: Project["status"]) {
+   switch (status) {
+     case "Devam Eden":
+       return "bg-[oklch(var(--info)/0.15)] text-info border border-[oklch(var(--info)/0.20)]";
+     case "Tamamlanan":
+       return "bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]";
+     case "Bekleyen":
+       return "bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]";
+     default:
+       return "bg-muted text-muted-foreground border border-border";
+   }
+ }

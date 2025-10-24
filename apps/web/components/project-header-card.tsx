@@ -59,26 +59,40 @@ interface ProjectHeaderCardProps {
 function getStatusIcon(status: Project["status"]) {
   switch (status) {
     case "Devam Eden":
-      return <AlertCircle className="h-4 w-4 text-blue-500" />;
+      return <AlertCircle className="h-4 w-4 text-info" />;
     case "Tamamlanan":
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
+      return <CheckCircle className="h-4 w-4 text-success" />;
     case "Bekleyen":
-      return <Pause className="h-4 w-4 text-yellow-500" />;
+      return <Pause className="h-4 w-4 text-warning" />;
     default:
       return null;
+  }
+}
+
+// Statü rozeti için semantik sınıflar
+function getStatusBadgeClass(status: Project["status"]) {
+  switch (status) {
+    case "Devam Eden":
+      return "text-info border-[oklch(var(--info)/0.12)] bg-[oklch(var(--info)/0.06)]";
+    case "Tamamlanan":
+      return "text-success border-[oklch(var(--success)/0.12)] bg-[oklch(var(--success)/0.06)]";
+    case "Bekleyen":
+      return "text-warning border-[oklch(var(--warning)/0.12)] bg-[oklch(var(--warning)/0.06)]";
+    default:
+      return "text-muted-foreground";
   }
 }
 
 function getPriorityColor(priority: Project["priority"]) {
   switch (priority) {
     case "Yüksek":
-      return "bg-red-100 text-red-800 border-red-200";
+      return "border-[oklch(var(--priority-high)/0.12)] text-priority-high";
     case "Normal":
-      return "bg-blue-100 text-blue-800 border-blue-200";
+      return "border-[oklch(var(--priority-normal)/0.12)] text-priority-normal";
     case "Düşük":
-      return "bg-gray-100 text-gray-800 border-gray-200";
+      return "border-[oklch(var(--priority-low)/0.12)] text-priority-low";
     default:
-      return "bg-gray-100 text-gray-800 border-gray-200";
+      return "border-[oklch(var(--priority-low)/0.12)] text-priority-low";
   }
 }
 
@@ -96,6 +110,9 @@ export function ProjectHeaderCard(props: ProjectHeaderCardProps) {
               <h2 className="text-lg font-semibold tracking-tight truncate">
                 {selectedProject.name}
               </h2>
+              <Badge variant="outline" className={`shrink-0 text-xs ${getStatusBadgeClass(selectedProject.status)}`}>
+                {selectedProject.status}
+              </Badge>
               <Badge variant="outline" className="shrink-0">
                 {selectedProject.code}
               </Badge>
