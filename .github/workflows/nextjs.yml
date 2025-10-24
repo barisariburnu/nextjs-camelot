@@ -34,18 +34,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Ensure pnpm is available before using setup-node cache=pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.4.1"
+          run_install: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          # Match repo packageManager version for reliability
-          version: "10.4.1"
-          run_install: false
 
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
@@ -75,7 +75,6 @@ jobs:
       # Build only the web app; Turborepo will honor pipeline dependencies
       - name: Build web (Next.js via Turborepo)
         run: pnpm turbo run build --filter=./apps/web
-
 
       - name: "Smoke check: Next.js output exists"
         run: |
