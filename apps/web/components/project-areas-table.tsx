@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogClose,
 } from "@workspace/ui/components/dialog";
 import { ProjectArea, ProcessStatus } from "@/lib/types";
 import { Input } from "@workspace/ui/components/input";
@@ -185,30 +186,24 @@ export function ProjectAreasTable({
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {summary.completedPayments > 0 && (
-                            <Badge
-                              variant="outline"
-                              className="text-xs bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]"
-                            >
-                              {summary.completedPayments} Tamamlandı
-                            </Badge>
-                          )}
-                          {summary.pendingPayments > 0 && (
-                            <Badge
-                              variant="outline"
-                              className="text-xs bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]"
-                            >
-                              {summary.pendingPayments} Bekliyor
-                            </Badge>
-                          )}
-                          {summary.lawsuits > 0 && (
-                            <Badge
-                              variant="outline"
-                              className="text-xs bg-[oklch(var(--priority-high)/0.15)] text-priority-high border border-[oklch(var(--priority-high)/0.20)]"
-                            >
-                              {summary.lawsuits} Dava
-                            </Badge>
-                          )}
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${summary.completedPayments > 0 ? "bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]" : "bg-muted/40 text-muted-foreground border border-border"}`}
+                          >
+                            {summary.completedPayments} Tamamlanan
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${summary.pendingPayments > 0 ? "bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]" : "bg-muted/40 text-muted-foreground border border-border"}`}
+                          >
+                            {summary.pendingPayments} Bekleyen
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${summary.lawsuits > 0 ? "bg-[oklch(var(--priority-high)/0.15)] text-priority-high border border-[oklch(var(--priority-high)/0.20)]" : "bg-muted/40 text-muted-foreground border border-border"}`}
+                          >
+                            {summary.lawsuits} Dava
+                          </Badge>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -228,13 +223,22 @@ export function ProjectAreasTable({
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-4xl md:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
-                              <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-10 sm:pr-12">
+                            <DialogContent
+                              className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-4xl md:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]"
+                              showCloseButton={false}
+                              onInteractOutside={(e) => e.preventDefault()}
+                              onEscapeKeyDown={(e) => e.preventDefault()}
+                            >
+                              <DialogHeader className="sticky top-0 z-10 w-full bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-12">
                                 <DialogTitle>
                                   Alan Detayları - Ada: {area.ada}, Parsel:{" "}
                                   {area.parsel}
                                 </DialogTitle>
                               </DialogHeader>
+                              <DialogClose className="absolute right-4 top-4 z-20 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+                                <X className="h-4 w-4" />
+                                <span className="sr-only">Kapat</span>
+                              </DialogClose>
                               {selectedArea && (
                                 <AreaDetailView area={selectedArea} />
                               )}
@@ -292,6 +296,28 @@ export function ProjectAreasTable({
                           {summary.totalPropertyOwners}
                         </span>
                       </div>
+                      <div className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 p-3">
+                        <Badge variant="outline" className="text-xs">
+                          {area.nitelik}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {area.yuzolcumu.toLocaleString("tr-TR")} m²
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Kamulaştırma:{" "}
+                          {area.kamulaştırmaAlani.toLocaleString("tr-TR")} m²
+                        </Badge>
+                        {area.tapuDurumu && (
+                          <Badge variant="outline" className="text-xs">
+                            Tapu: {area.tapuDurumu}
+                          </Badge>
+                        )}
+                        {area.imar_durumu && (
+                          <Badge variant="outline" className="text-xs">
+                            İmar: {area.imar_durumu}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <Dialog>
                           <DialogTrigger asChild>
@@ -303,13 +329,22 @@ export function ProjectAreasTable({
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-4xl md:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
-                            <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-10 sm:pr-12">
+                          <DialogContent
+                            className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-4xl md:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]"
+                            showCloseButton={false}
+                            onInteractOutside={(e) => e.preventDefault()}
+                            onEscapeKeyDown={(e) => e.preventDefault()}
+                          >
+                            <DialogHeader className="sticky top-0 z-10 w-full bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-12">
                               <DialogTitle>
                                 Alan Detayları - Ada: {area.ada}, Parsel:{" "}
                                 {area.parsel}
                               </DialogTitle>
                             </DialogHeader>
+                            <DialogClose className="absolute right-4 top-4 z-20 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+                              <X className="h-4 w-4" />
+                              <span className="sr-only">Kapat</span>
+                            </DialogClose>
                             {selectedArea && (
                               <AreaDetailView area={selectedArea} />
                             )}
@@ -522,22 +557,22 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
               </div>
             ) : (
               <>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Ada:</span>
-                  <span className="font-medium">{form.ada}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Parsel:</span>
-                  <span className="font-medium">{form.parsel}</span>
-                </div>
-                {form.pafta && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Pafta:
-                    </span>
-                    <span className="font-medium">{form.pafta}</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">Ada</div>
+                    <div className="font-medium">{form.ada}</div>
                   </div>
-                )}
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">Parsel</div>
+                    <div className="font-medium">{form.parsel}</div>
+                  </div>
+                  {form.pafta && (
+                    <div className="rounded-lg bg-muted/40 p-2">
+                      <div className="text-xs text-muted-foreground">Pafta</div>
+                      <div className="font-medium">{form.pafta}</div>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </CardContent>
@@ -604,27 +639,27 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
               </div>
             ) : (
               <>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Nitelik:
-                  </span>
-                  <span className="font-medium">{form.nitelik}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Yüzölçümü:
-                  </span>
-                  <span className="font-medium">
-                    {form.yuzolcumu.toLocaleString("tr-TR")} m²
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Kamulaştırma:
-                  </span>
-                  <span className="font-medium">
-                    {form.kamulaştırmaAlani.toLocaleString("tr-TR")} m²
-                  </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-muted/40 p-2 sm:col-span-2">
+                    <div className="text-xs text-muted-foreground">Nitelik</div>
+                    <div className="font-medium">{form.nitelik}</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">
+                      Yüzölçümü
+                    </div>
+                    <div className="font-medium">
+                      {form.yuzolcumu.toLocaleString("tr-TR")} m²
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">
+                      Kamulaştırma
+                    </div>
+                    <div className="font-medium">
+                      {form.kamulaştırmaAlani.toLocaleString("tr-TR")} m²
+                    </div>
+                  </div>
                 </div>
               </>
             )}
@@ -636,35 +671,45 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
             <CardTitle className="text-sm">Durum Özeti</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">
-                Toplam Malik:
-              </span>
-              <span className="font-medium">{summary.totalPropertyOwners}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-success">Tamamlanan:</span>
-              <span className="font-medium">{summary.completedPayments}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-warning">Bekleyen:</span>
-              <span className="font-medium">{summary.pendingPayments}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-priority-high">Dava:</span>
-              <span className="font-medium">{summary.lawsuits}</span>
+            <div className="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] gap-2 md:gap-3">
+              <div className="rounded-lg bg-muted/40 p-2 text-center">
+                <div className="text-xs text-muted-foreground">
+                  Toplam Malik
+                </div>
+                <div className="font-semibold">
+                  {summary.totalPropertyOwners}
+                </div>
+              </div>
+              <div className="rounded-lg bg-[oklch(var(--success)/0.12)] border border-[oklch(var(--success)/0.24)] p-2 text-center">
+                <div className="text-xs text-success">Tamamlanan</div>
+                <div className="font-semibold text-success">
+                  {summary.completedPayments}
+                </div>
+              </div>
+              <div className="rounded-lg bg-[oklch(var(--warning)/0.12)] border border-[oklch(var(--warning)/0.24)] p-2 text-center">
+                <div className="text-xs text-warning">Bekleyen</div>
+                <div className="font-semibold text-warning">
+                  {summary.pendingPayments}
+                </div>
+              </div>
+              <div className="rounded-lg bg-[oklch(var(--priority-high)/0.12)] border border-[oklch(var(--priority-high)/0.24)] p-2 text-center">
+                <div className="text-xs text-priority-high">Dava</div>
+                <div className="font-semibold text-priority-high">
+                  {summary.lawsuits}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Ek Bilgiler */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] gap-3">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-1">
             <CardTitle className="text-sm">Tapu Durumu</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="py-2">
             {isEditing ? (
               <div className="space-y-1">
                 <Label htmlFor="tapuDurumu">Tapu Durumu</Label>
@@ -677,17 +722,19 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
                 />
               </div>
             ) : (
-              <Badge variant="outline">{form.tapuDurumu}</Badge>
+              <Badge variant="outline" className="text-xs">
+                {form.tapuDurumu}
+              </Badge>
             )}
           </CardContent>
         </Card>
 
         {area.imar_durumu && (
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-1">
               <CardTitle className="text-sm">İmar Durumu</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="py-2">
               {isEditing ? (
                 <div className="space-y-1">
                   <Label htmlFor="imarDurumu">İmar Durumu</Label>
@@ -700,7 +747,9 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
                   />
                 </div>
               ) : (
-                <Badge variant="outline">{form.imar_durumu}</Badge>
+                <Badge variant="outline" className="text-xs">
+                  {form.imar_durumu}
+                </Badge>
               )}
             </CardContent>
           </Card>

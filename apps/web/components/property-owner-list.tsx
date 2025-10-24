@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogClose,
 } from "@workspace/ui/components/dialog";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
@@ -270,12 +271,16 @@ export function PropertyOwnerList({
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-3xl md:max-w-4xl lg:max-w-5xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
-                              <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-10 sm:pr-12">
+                            <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-3xl md:max-w-4xl lg:max-w-5xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]" showCloseButton={false} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+                              <DialogHeader className="sticky top-0 z-10 w-full bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-12">
                                 <DialogTitle>
                                   Malik Detayları - {owner.ad} {owner.soyad}
                                 </DialogTitle>
                               </DialogHeader>
+                              <DialogClose className="absolute right-4 top-4 z-20 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+                                <X className="h-4 w-4" />
+                                <span className="sr-only">Kapat</span>
+                              </DialogClose>
                               {selectedPropertyOwner && (
                                 <OwnerDetailView
                                   owner={selectedPropertyOwner}
@@ -367,12 +372,16 @@ export function PropertyOwnerList({
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-3xl md:max-w-4xl lg:max-w-5xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
-                            <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6">
+                          <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-3xl md:max-w-4xl lg:max-w-5xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]" showCloseButton={false} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+                            <DialogHeader className="sticky top-0 z-10 w-full bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-12">
                               <DialogTitle>
                                 Malik Detayları - {owner.ad} {owner.soyad}
                               </DialogTitle>
                             </DialogHeader>
+                            <DialogClose className="absolute right-4 top-4 z-20 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background">
+                              <X className="h-4 w-4" />
+                              <span className="sr-only">Kapat</span>
+                            </DialogClose>
                             {selectedPropertyOwner && (
                               <OwnerDetailView owner={selectedPropertyOwner} />
                             )}
@@ -482,6 +491,28 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
         </Button>
       </div>
 
+      {!isEditing && (
+        <div className="flex flex-wrap items-center gap-2 rounded-lg bg-muted/40 p-3">
+          <Badge variant="outline" className="text-xs">
+            Hak: {form.hissePay}/{form.hissePayda} · %
+            {((form.hissePay / form.hissePayda) * 100).toFixed(4)}
+          </Badge>
+          <Badge className={getStatusColor(form.processStatus)}>
+            {getStatusLabel(form.processStatus)}
+          </Badge>
+          {form.telefon && (
+            <Badge variant="outline" className="text-xs">
+              {form.telefon}
+            </Badge>
+          )}
+          {form.email && (
+            <Badge variant="outline" className="text-xs">
+              {form.email}
+            </Badge>
+          )}
+        </div>
+      )}
+
       {/* Temel Bilgiler */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
@@ -551,38 +582,34 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
                 </div>
               </div>
             ) : (
-              <>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Ad Soyad:
-                  </span>
-                  <span className="font-medium">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg bg-muted/40 p-2 col-span-2">
+                  <div className="text-xs text-muted-foreground">Ad Soyad</div>
+                  <div className="font-medium">
                     {form.ad} {form.soyad}
-                  </span>
+                  </div>
                 </div>
                 {form.tcKimlikNo && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      TC Kimlik No:
-                    </span>
-                    <span className="font-medium">{form.tcKimlikNo}</span>
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">
+                      TC Kimlik No
+                    </div>
+                    <div className="font-medium">{form.tcKimlikNo}</div>
                   </div>
                 )}
                 {form.vergiNo && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Vergi No:
-                    </span>
-                    <span className="font-medium">{form.vergiNo}</span>
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">
+                      Vergi No
+                    </div>
+                    <div className="font-medium">{form.vergiNo}</div>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Kimlik No:
-                  </span>
-                  <span className="font-medium">{form.kimlikNo}</span>
+                <div className="rounded-lg bg-muted/40 p-2">
+                  <div className="text-xs text-muted-foreground">Kimlik No</div>
+                  <div className="font-medium">{form.kimlikNo}</div>
                 </div>
-              </>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -635,24 +662,26 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
                 </div>
               </div>
             ) : (
-              <>
+              <div className="grid grid-cols-1 gap-2">
                 {form.telefon && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{form.telefon}</span>
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">Telefon</div>
+                    <div className="font-medium">{form.telefon}</div>
                   </div>
                 )}
                 {form.email && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{form.email}</span>
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">E-posta</div>
+                    <div className="font-medium">{form.email}</div>
                   </div>
                 )}
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <span className="text-sm">{form.adres}</span>
-                </div>
-              </>
+                {form.adres && (
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">Adres</div>
+                    <div className="font-medium">{form.adres}</div>
+                  </div>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -705,22 +734,22 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
                 </div>
               </div>
             ) : (
-              <>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Hisse Oranı:
-                  </span>
-                  <span className="font-medium">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg bg-muted/40 p-2">
+                  <div className="text-xs text-muted-foreground">
+                    Hisse Oranı
+                  </div>
+                  <div className="font-medium">
                     {form.hissePay}/{form.hissePayda}
-                  </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Yüzde:</span>
-                  <span className="font-medium">
+                <div className="rounded-lg bg-muted/40 p-2">
+                  <div className="text-xs text-muted-foreground">Yüzde</div>
+                  <div className="font-medium">
                     %{((form.hissePay / form.hissePayda) * 100).toFixed(4)}
-                  </span>
+                  </div>
                 </div>
-              </>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -793,35 +822,37 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
                 </div>
               </div>
             ) : (
-              <>
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   {getStatusIcon(form.processStatus)}
                   <Badge className={getStatusColor(form.processStatus)}>
                     {getStatusLabel(form.processStatus)}
                   </Badge>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Son İşlem:
-                  </span>
-                  <span className="font-medium">
-                    {(form.sonIslemTarihi instanceof Date
-                      ? form.sonIslemTarihi
-                      : new Date(form.sonIslemTarihi)
-                    ).toLocaleDateString("tr-TR")}
-                  </span>
-                </div>
-                {form.mahkemeEsasNo && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Mahkeme Esas No:
-                    </span>
-                    <span className="font-medium text-priority-high">
-                      {form.mahkemeEsasNo}
-                    </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-muted/40 p-2">
+                    <div className="text-xs text-muted-foreground">
+                      Son İşlem
+                    </div>
+                    <div className="font-medium">
+                      {(form.sonIslemTarihi instanceof Date
+                        ? form.sonIslemTarihi
+                        : new Date(form.sonIslemTarihi)
+                      ).toLocaleDateString("tr-TR")}
+                    </div>
                   </div>
-                )}
-              </>
+                  {form.mahkemeEsasNo && (
+                    <div className="rounded-lg bg-[oklch(var(--priority-high)/0.12)] border border-[oklch(var(--priority-high)/0.24)] p-2">
+                      <div className="text-xs text-priority-high">
+                        Mahkeme Esas No
+                      </div>
+                      <div className="font-medium text-priority-high">
+                        {form.mahkemeEsasNo}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
