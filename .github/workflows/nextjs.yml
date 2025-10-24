@@ -76,7 +76,8 @@ jobs:
       - name: Build web (Next.js via Turborepo)
         run: pnpm turbo run build --filter=./apps/web
 
-      - name: Smoke check: Next.js output exists
+
+      - name: "Smoke check: Next.js output exists"
         run: |
           if [ -d "apps/web/.next" ]; then
             echo "Next.js build output found";
