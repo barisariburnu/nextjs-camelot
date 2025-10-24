@@ -24,7 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog";
-import { ProjectArea, PropertyOwner, ProcessStatus } from "@/lib/types";
+import { ProjectArea, ProcessStatus } from "@/lib/types";
 import { Eye, MapPin, Users, ChevronRight } from "lucide-react";
 
 interface ProjectAreasTableProps {
@@ -113,13 +113,20 @@ export function ProjectAreasTable({
                 {areas.map((area) => {
                   const summary = getAreaSummary(area);
                   return (
-                    <TableRow key={area.id} className="hover:bg-accent/50 transition-colors">
+                    <TableRow
+                      key={area.id}
+                      className="hover:bg-accent/50 transition-colors"
+                    >
                       <TableCell className="font-medium">
                         <div>
                           <div className="font-semibold">Ada: {area.ada}</div>
-                          <div className="text-sm text-muted-foreground">Parsel: {area.parsel}</div>
+                          <div className="text-sm text-muted-foreground">
+                            Parsel: {area.parsel}
+                          </div>
                           {area.pafta && (
-                            <div className="text-xs text-muted-foreground">Pafta: {area.pafta}</div>
+                            <div className="text-xs text-muted-foreground">
+                              Pafta: {area.pafta}
+                            </div>
                           )}
                         </div>
                       </TableCell>
@@ -133,57 +140,89 @@ export function ProjectAreasTable({
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div className="font-medium">{area.kamulaştırmaAlani.toLocaleString("tr-TR")} m²</div>
-                          <div className="text-xs text-muted-foreground">%{((area.kamulaştırmaAlani / area.yuzolcumu) * 100).toFixed(1)}</div>
+                          <div className="font-medium">
+                            {area.kamulaştırmaAlani.toLocaleString("tr-TR")} m²
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            %
+                            {(
+                              (area.kamulaştırmaAlani / area.yuzolcumu) *
+                              100
+                            ).toFixed(1)}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{summary.totalPropertyOwners}</span>
+                          <span className="font-medium">
+                            {summary.totalPropertyOwners}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {summary.completedPayments > 0 && (
-                            <Badge variant="outline" className="text-xs bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]"
+                            >
                               {summary.completedPayments} Tamamlandı
                             </Badge>
                           )}
                           {summary.pendingPayments > 0 && (
-                            <Badge variant="outline" className="text-xs bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]"
+                            >
                               {summary.pendingPayments} Bekliyor
                             </Badge>
                           )}
                           {summary.lawsuits > 0 && (
-                            <Badge variant="outline" className="text-xs bg-[oklch(var(--priority-high)/0.15)] text-priority-high border border-[oklch(var(--priority-high)/0.20)]">
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-[oklch(var(--priority-high)/0.15)] text-priority-high border border-[oklch(var(--priority-high)/0.20)]"
+                            >
                               {summary.lawsuits} Dava
                             </Badge>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-xs">{area.tapuDurumu}</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {area.tapuDurumu}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={() => setSelectedArea(area)}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSelectedArea(area)}
+                              >
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle>
-                                  Alan Detayları - Ada: {area.ada}, Parsel: {area.parsel}
+                                  Alan Detayları - Ada: {area.ada}, Parsel:{" "}
+                                  {area.parsel}
                                 </DialogTitle>
                               </DialogHeader>
-                              {selectedArea && <AreaDetailView area={selectedArea} />}
+                              {selectedArea && (
+                                <AreaDetailView area={selectedArea} />
+                              )}
                             </DialogContent>
                           </Dialog>
                           {onAreaSelect && (
-                            <Button variant="ghost" size="sm" onClick={() => onAreaSelect(area)}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onAreaSelect(area)}
+                            >
                               <ChevronRight className="h-4 w-4" />
                             </Button>
                           )}
@@ -201,41 +240,64 @@ export function ProjectAreasTable({
             {areas.map((area) => {
               const summary = getAreaSummary(area);
               return (
-                <div key={area.id} className="rounded-lg border border-border p-3 bg-card">
+                <div
+                  key={area.id}
+                  className="rounded-lg border border-border p-3 bg-card"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="font-semibold truncate">Ada: {area.ada}</div>
+                      <div className="font-semibold truncate">
+                        Ada: {area.ada}
+                      </div>
                       <div className="text-sm text-muted-foreground truncate">
-                        Parsel: {area.parsel}{area.pafta ? ` · Pafta: ${area.pafta}` : ""}
+                        Parsel: {area.parsel}
+                        {area.pafta ? ` · Pafta: ${area.pafta}` : ""}
                       </div>
                       <div className="mt-2 flex flex-wrap gap-1">
-                        <Badge variant="outline" className="text-xs">{area.nitelik}</Badge>
-                        <Badge variant="outline" className="text-xs">Tapu: {area.tapuDurumu}</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {area.nitelik}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Tapu: {area.tapuDurumu}
+                        </Badge>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <div className="flex items-center gap-1 text-sm">
                         <Users className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{summary.totalPropertyOwners}</span>
+                        <span className="font-medium">
+                          {summary.totalPropertyOwners}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={() => setSelectedArea(area)}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setSelectedArea(area)}
+                            >
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle>
-                                Alan Detayları - Ada: {area.ada}, Parsel: {area.parsel}
+                                Alan Detayları - Ada: {area.ada}, Parsel:{" "}
+                                {area.parsel}
                               </DialogTitle>
                             </DialogHeader>
-                            {selectedArea && <AreaDetailView area={selectedArea} />}
+                            {selectedArea && (
+                              <AreaDetailView area={selectedArea} />
+                            )}
                           </DialogContent>
                         </Dialog>
                         {onAreaSelect && (
-                          <Button variant="ghost" size="sm" onClick={() => onAreaSelect(area)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onAreaSelect(area)}
+                          >
                             <ChevronRight className="h-4 w-4" />
                           </Button>
                         )}
@@ -245,29 +307,52 @@ export function ProjectAreasTable({
 
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <div className="rounded-lg p-2 bg-muted/40">
-                      <div className="text-xs text-muted-foreground">Yüzölçümü</div>
-                      <div className="text-sm font-medium">{area.yuzolcumu.toLocaleString("tr-TR")} m²</div>
+                      <div className="text-xs text-muted-foreground">
+                        Yüzölçümü
+                      </div>
+                      <div className="text-sm font-medium">
+                        {area.yuzolcumu.toLocaleString("tr-TR")} m²
+                      </div>
                     </div>
                     <div className="rounded-lg p-2 bg-muted/40">
-                      <div className="text-xs text-muted-foreground">Kamulaştırma Alanı</div>
-                      <div className="text-sm font-medium">{area.kamulaştırmaAlani.toLocaleString("tr-TR")} m²</div>
-                      <div className="text-xs text-muted-foreground">%{((area.kamulaştırmaAlani / area.yuzolcumu) * 100).toFixed(1)}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Kamulaştırma Alanı
+                      </div>
+                      <div className="text-sm font-medium">
+                        {area.kamulaştırmaAlani.toLocaleString("tr-TR")} m²
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        %
+                        {(
+                          (area.kamulaştırmaAlani / area.yuzolcumu) *
+                          100
+                        ).toFixed(1)}
+                      </div>
                     </div>
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-1">
                     {summary.completedPayments > 0 && (
-                      <Badge variant="outline" className="text-xs bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]">
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]"
+                      >
                         {summary.completedPayments} Tamamlandı
                       </Badge>
                     )}
                     {summary.pendingPayments > 0 && (
-                      <Badge variant="outline" className="text-xs bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]">
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]"
+                      >
                         {summary.pendingPayments} Bekliyor
                       </Badge>
                     )}
                     {summary.lawsuits > 0 && (
-                      <Badge variant="outline" className="text-xs bg-[oklch(var(--priority-high)/0.15)] text-priority-high border border-[oklch(var(--priority-high)/0.20)]">
+                      <Badge
+                        variant="outline"
+                        className="text-xs bg-[oklch(var(--priority-high)/0.15)] text-priority-high border border-[oklch(var(--priority-high)/0.20)]"
+                      >
                         {summary.lawsuits} Dava
                       </Badge>
                     )}

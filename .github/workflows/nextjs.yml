@@ -71,7 +71,7 @@ jobs:
         run: pnpm turbo run lint
 
       - name: Typecheck (Turborepo)
-        run: pnpm turbo run typecheck
+        run: pnpm turbo run typecheck --filter=./apps/web
 
       # Build only the web app; Turborepo will honor pipeline dependencies
       - name: Build web (Next.js via Turborepo)

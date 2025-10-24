@@ -3,14 +3,13 @@
 import * as React from "react";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
-import { Separator } from "@workspace/ui/components/separator";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
-import { Plus, Grid, List } from "lucide-react";
+import { Grid, List } from "lucide-react";
 
 import dynamic from "next/dynamic";
 
@@ -590,14 +589,14 @@ export function ProjectExplorer(props: ProjectExplorerProps) {
 }
 
 function getStatusBadgeClass(status: Project["status"]) {
-   switch (status) {
-     case "Devam Eden":
-       return "bg-[oklch(var(--info)/0.15)] text-info border border-[oklch(var(--info)/0.20)]";
-     case "Tamamlanan":
-       return "bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]";
-     case "Bekleyen":
-       return "bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]";
-     default:
-       return "bg-muted text-muted-foreground border border-border";
-   }
- }
+  switch (status) {
+    case "Devam Eden":
+      return "bg-[oklch(var(--info)/0.15)] text-info border border-[oklch(var(--info)/0.20)]";
+    case "Tamamlanan":
+      return "bg-[oklch(var(--success)/0.15)] text-success border border-[oklch(var(--success)/0.20)]";
+    case "Bekleyen":
+      return "bg-[oklch(var(--warning)/0.15)] text-warning border border-[oklch(var(--warning)/0.20)]";
+    default:
+      return "bg-muted text-muted-foreground border border-border";
+  }
+}

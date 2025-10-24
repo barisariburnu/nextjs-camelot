@@ -28,14 +28,12 @@ import { PropertyOwner, ProcessStatus } from "@/lib/types";
 import {
   User,
   Eye,
-  ExternalLink,
   Calendar,
   Gavel,
   CreditCard,
   Phone,
   Mail,
   MapPin,
-  PieChart,
   ChevronRight,
 } from "lucide-react";
 

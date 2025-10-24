@@ -216,7 +216,7 @@ const mockProjectSummary: ProjectSummaryType = {
 export default function ProjectDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [filters, setFilters] = useState<FilterCriteria>({});
