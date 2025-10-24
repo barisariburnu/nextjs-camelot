@@ -75,7 +75,7 @@ jobs:
 
       # Build only the web app; Turborepo will honor pipeline dependencies
       - name: Build web (Next.js via Turborepo)
-        run: pnpm turbo run build --filter=./apps/web
+        run: pnpm turbo run build --filter=web
 
       - name: "Smoke check: Next.js output exists"
         run: |
@@ -88,12 +88,12 @@ jobs:
 
       # Upload build artifacts for debugging or downstream jobs (optional)
       - name: Upload web .next artifact
-        if: success()
+        if: success() && hashFiles('apps/web/.next/**') != ''
         uses: actions/upload-artifact@v4
         with:
           name: web-next-output
           path: apps/web/.next
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
 
       # Failure summary for quick visibility
