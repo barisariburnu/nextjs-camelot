@@ -23,13 +23,36 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@workspace/ui/components/dialog";
 import { ProjectArea, ProcessStatus } from "@/lib/types";
-import { Eye, MapPin, Users, ChevronRight } from "lucide-react";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
+import { toast } from "@workspace/ui/components/sonner";
+import {
+  Eye,
+  MapPin,
+  Users,
+  ChevronRight,
+  Pencil,
+  Save,
+  X,
+  Loader2,
+} from "lucide-react";
 
 interface ProjectAreasTableProps {
   areas: ProjectArea[];
   onAreaSelect?: (area: ProjectArea) => void;
+}
+
+// Reusable field error helper
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={`${id}-error`} className="text-destructive text-xs mt-1">
+      {message}
+    </p>
+  );
 }
 
 export function ProjectAreasTable({
@@ -103,7 +126,7 @@ export function ProjectAreasTable({
                   <TableHead>Nitelik</TableHead>
                   <TableHead>Yüzölçümü</TableHead>
                   <TableHead>Kamulaştırma Alanı</TableHead>
-                  <TableHead>Owner Count</TableHead>
+                  <TableHead>Malik Sayısı</TableHead>
                   <TableHead>Durum Özeti</TableHead>
                   <TableHead>Tapu Durumu</TableHead>
                   <TableHead className="text-right">İşlemler</TableHead>
@@ -205,8 +228,8 @@ export function ProjectAreasTable({
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                              <DialogHeader>
+                            <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-4xl md:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
+                              <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-10 sm:pr-12">
                                 <DialogTitle>
                                   Alan Detayları - Ada: {area.ada}, Parsel:{" "}
                                   {area.parsel}
@@ -280,8 +303,8 @@ export function ProjectAreasTable({
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
+                          <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-4xl md:max-w-5xl lg:max-w-6xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
+                            <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-10 sm:pr-12">
                               <DialogTitle>
                                 Alan Detayları - Ada: {area.ada}, Parsel:{" "}
                                 {area.parsel}
@@ -368,41 +391,154 @@ export function ProjectAreasTable({
 }
 
 function AreaDetailView({ area }: { area: ProjectArea }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState<ProjectArea>({ ...area });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  const validate = (data: ProjectArea) => {
+    const next: Record<string, string> = {};
+    if (!data.ada?.trim()) next.ada = "Ada gerekli";
+    if (!data.parsel?.trim()) next.parsel = "Parsel gerekli";
+    if (!data.nitelik?.trim()) next.nitelik = "Nitelik gerekli";
+    if (data.yuzolcumu != null && data.yuzolcumu <= 0)
+      next.yuzolcumu = "Yüzölçümü 0'dan büyük olmalı";
+    if (data.kamulaştırmaAlani != null && data.kamulaştırmaAlani < 0)
+      next.kamulaştırmaAlani = "Kamulaştırma negatif olamaz";
+    if (
+      data.yuzolcumu != null &&
+      data.kamulaştırmaAlani != null &&
+      data.kamulaştırmaAlani > data.yuzolcumu
+    ) {
+      next.kamulaştırmaAlani = "Kamulaştırma, yüzölçümünden fazla olamaz";
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const onCancel = () => {
+    setForm({ ...area });
+    setErrors({});
+    setIsEditing(false);
+    toast.info("Değişiklikler geri alındı.");
+  };
+
+  const onSave = async () => {
+    if (!validate(form)) {
+      toast.error("Lütfen hatalı alanları düzeltin.");
+      return;
+    }
+    try {
+      setIsSaving(true);
+      // Simulated save – replace with API integration
+      await new Promise((r) => setTimeout(r, 400));
+      setIsEditing(false);
+      toast.success("Alan bilgileri başarıyla güncellendi.");
+    } catch (e) {
+      toast.error("Kaydetme sırasında bir hata oluştu.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const summary = {
-    totalPropertyOwners: area.malikler.length,
-    completedPayments: area.malikler.filter(
+    totalPropertyOwners: form.malikler.length,
+    completedPayments: form.malikler.filter(
       (m) => m.processStatus === ProcessStatus.PAYMENT_COMPLETED
     ).length,
-    pendingPayments: area.malikler.filter(
+    pendingPayments: form.malikler.filter(
       (m) => m.processStatus === ProcessStatus.PAYMENT_PENDING
     ).length,
-    lawsuits: area.malikler.filter(
+    lawsuits: form.malikler.filter(
       (m) => m.processStatus === ProcessStatus.LAWSUIT_PROCESS
     ).length,
   };
 
   return (
     <div className="space-y-6">
+      {/* Üst Aksiyonlar */}
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant={isEditing ? "outline" : "default"}
+          size="sm"
+          onClick={() => setIsEditing((v) => !v)}
+          aria-pressed={isEditing}
+        >
+          {isEditing ? (
+            <span className="inline-flex items-center gap-1">
+              <X className="h-4 w-4" /> Düzenlemeyi Kapat
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1">
+              <Pencil className="h-4 w-4" /> Düzenle
+            </span>
+          )}
+        </Button>
+      </div>
+
       {/* Alan Bilgileri */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Konum Bilgileri</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Ada:</span>
-              <span className="font-medium">{area.ada}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Parsel:</span>
-              <span className="font-medium">{area.parsel}</span>
-            </div>
-            {area.pafta && (
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Pafta:</span>
-                <span className="font-medium">{area.pafta}</span>
+            {isEditing ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="ada">Ada</Label>
+                  <Input
+                    id="ada"
+                    value={form.ada}
+                    onChange={(e) => setForm({ ...form, ada: e.target.value })}
+                    aria-invalid={!!errors.ada}
+                    aria-describedby="ada-error"
+                  />
+                  <FieldError id="ada" message={errors.ada} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="parsel">Parsel</Label>
+                  <Input
+                    id="parsel"
+                    value={form.parsel}
+                    onChange={(e) =>
+                      setForm({ ...form, parsel: e.target.value })
+                    }
+                    aria-invalid={!!errors.parsel}
+                    aria-describedby="parsel-error"
+                  />
+                  <FieldError id="parsel" message={errors.parsel} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="pafta">Pafta</Label>
+                  <Input
+                    id="pafta"
+                    value={form.pafta ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, pafta: e.target.value })
+                    }
+                  />
+                </div>
               </div>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Ada:</span>
+                  <span className="font-medium">{form.ada}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Parsel:</span>
+                  <span className="font-medium">{form.parsel}</span>
+                </div>
+                {form.pafta && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Pafta:
+                    </span>
+                    <span className="font-medium">{form.pafta}</span>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
@@ -412,24 +548,86 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
             <CardTitle className="text-sm">Alan Bilgileri</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Nitelik:</span>
-              <span className="font-medium">{area.nitelik}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Yüzölçümü:</span>
-              <span className="font-medium">
-                {area.yuzolcumu.toLocaleString("tr-TR")} m²
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">
-                Kamulaştırma:
-              </span>
-              <span className="font-medium">
-                {area.kamulaştırmaAlani.toLocaleString("tr-TR")} m²
-              </span>
-            </div>
+            {isEditing ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1 sm:col-span-3">
+                  <Label htmlFor="nitelik">Nitelik</Label>
+                  <Input
+                    id="nitelik"
+                    value={form.nitelik}
+                    onChange={(e) =>
+                      setForm({ ...form, nitelik: e.target.value })
+                    }
+                    aria-invalid={!!errors.nitelik}
+                    aria-describedby="nitelik-error"
+                  />
+                  <FieldError id="nitelik" message={errors.nitelik} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="yuzolcumu">Yüzölçümü (m²)</Label>
+                  <Input
+                    id="yuzolcumu"
+                    type="number"
+                    value={form.yuzolcumu}
+                    onChange={(e) =>
+                      setForm({ ...form, yuzolcumu: Number(e.target.value) })
+                    }
+                    aria-invalid={!!errors.yuzolcumu}
+                    aria-describedby="yuzolcumu-error"
+                    inputMode="numeric"
+                    min={1}
+                  />
+                  <FieldError id="yuzolcumu" message={errors.yuzolcumu} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="kamulastirma">Kamulaştırma (m²)</Label>
+                  <Input
+                    id="kamulastirma"
+                    type="number"
+                    value={form.kamulaştırmaAlani}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        kamulaştırmaAlani: Number(e.target.value),
+                      })
+                    }
+                    aria-invalid={!!errors.kamulaştırmaAlani}
+                    aria-describedby="kamulastirma-error"
+                    inputMode="numeric"
+                    min={0}
+                  />
+                  <FieldError
+                    id="kamulastirma"
+                    message={errors.kamulaştırmaAlani}
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Nitelik:
+                  </span>
+                  <span className="font-medium">{form.nitelik}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Yüzölçümü:
+                  </span>
+                  <span className="font-medium">
+                    {form.yuzolcumu.toLocaleString("tr-TR")} m²
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Kamulaştırma:
+                  </span>
+                  <span className="font-medium">
+                    {form.kamulaştırmaAlani.toLocaleString("tr-TR")} m²
+                  </span>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -440,7 +638,7 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
           <CardContent className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">
-                Total Property Owners:
+                Toplam Malik:
               </span>
               <span className="font-medium">{summary.totalPropertyOwners}</span>
             </div>
@@ -461,13 +659,26 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
       </div>
 
       {/* Ek Bilgiler */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Tapu Durumu</CardTitle>
           </CardHeader>
           <CardContent>
-            <Badge variant="outline">{area.tapuDurumu}</Badge>
+            {isEditing ? (
+              <div className="space-y-1">
+                <Label htmlFor="tapuDurumu">Tapu Durumu</Label>
+                <Input
+                  id="tapuDurumu"
+                  value={form.tapuDurumu ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, tapuDurumu: e.target.value })
+                  }
+                />
+              </div>
+            ) : (
+              <Badge variant="outline">{form.tapuDurumu}</Badge>
+            )}
           </CardContent>
         </Card>
 
@@ -477,7 +688,20 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
               <CardTitle className="text-sm">İmar Durumu</CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge variant="outline">{area.imar_durumu}</Badge>
+              {isEditing ? (
+                <div className="space-y-1">
+                  <Label htmlFor="imarDurumu">İmar Durumu</Label>
+                  <Input
+                    id="imarDurumu"
+                    value={form.imar_durumu ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, imar_durumu: e.target.value })
+                    }
+                  />
+                </div>
+              ) : (
+                <Badge variant="outline">{form.imar_durumu}</Badge>
+              )}
             </CardContent>
           </Card>
         )}
@@ -525,6 +749,41 @@ function AreaDetailView({ area }: { area: ProjectArea }) {
           </div>
         </CardContent>
       </Card>
+      {isEditing && (
+        <DialogFooter
+          className="sticky bottom-0 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t p-4 sm:p-6"
+          aria-live="polite"
+        >
+          <div className="flex items-center justify-end gap-2 w-full">
+            <Button
+              variant="ghost"
+              onClick={onCancel}
+              size="lg"
+              disabled={isSaving}
+            >
+              <span className="inline-flex items-center gap-1">
+                <X className="h-4 w-4" /> Vazgeç
+              </span>
+            </Button>
+            <Button
+              variant="default"
+              onClick={onSave}
+              size="lg"
+              disabled={isSaving}
+              aria-busy={isSaving}
+            >
+              <span className="inline-flex items-center gap-1">
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {isSaving ? "Kaydediliyor..." : "Kaydet"}
+              </span>
+            </Button>
+          </div>
+        </DialogFooter>
+      )}
     </div>
   );
 }

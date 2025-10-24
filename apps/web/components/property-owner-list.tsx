@@ -23,7 +23,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@workspace/ui/components/dialog";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select";
+import { Textarea } from "@workspace/ui/components/textarea";
+import { toast } from "@workspace/ui/components/sonner";
 import { PropertyOwner, ProcessStatus } from "@/lib/types";
 import {
   User,
@@ -35,12 +47,26 @@ import {
   Mail,
   MapPin,
   ChevronRight,
+  Pencil,
+  Save,
+  X,
+  Loader2,
 } from "lucide-react";
 
 interface PropertyOwnerListProps {
   propertyOwners: PropertyOwner[];
   onPropertyOwnerSelect?: (owner: PropertyOwner) => void;
   showAreaInfo?: boolean;
+}
+
+// Basit, yeniden kullanılabilir hata bileşeni
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={`${id}-error`} className="text-destructive text-xs mt-1">
+      {message}
+    </p>
+  );
 }
 
 export function PropertyOwnerList({
@@ -244,8 +270,8 @@ export function PropertyOwnerList({
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-                              <DialogHeader>
+                            <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-3xl md:max-w-4xl lg:max-w-5xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
+                              <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6 pr-10 sm:pr-12">
                                 <DialogTitle>
                                   Malik Detayları - {owner.ad} {owner.soyad}
                                 </DialogTitle>
@@ -341,8 +367,8 @@ export function PropertyOwnerList({
                               <Eye className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
+                          <DialogContent className="w-[calc(100vw-2rem)] sm:w-auto sm:max-w-3xl md:max-w-4xl lg:max-w-5xl h-[90vh] sm:h-auto sm:max-h-[80vh] overflow-y-auto rounded-none sm:rounded-lg p-4 sm:p-6 [touch-action:pan-y] pb-[env(safe-area-inset-bottom)]">
+                            <DialogHeader className="sticky top-0 z-10 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-4 sm:p-6">
                               <DialogTitle>
                                 Malik Detayları - {owner.ad} {owner.soyad}
                               </DialogTitle>
@@ -382,45 +408,182 @@ export function PropertyOwnerList({
 }
 
 function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState<PropertyOwner>({ ...owner });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
   const getPaymentProgress = (owner: PropertyOwner) => {
     if (!owner.odemeTutari || owner.odemeTutari === 0) return 0;
     const odenen = owner.odenenTutar || 0;
     return Math.round((odenen / owner.odemeTutari) * 100);
   };
 
+  const validate = (data: PropertyOwner) => {
+    const next: Record<string, string> = {};
+    if (!data.ad?.trim()) next.ad = "Ad zorunlu";
+    if (!data.soyad?.trim()) next.soyad = "Soyad zorunlu";
+    if (data.tcKimlikNo && !/^\d{11}$/.test(data.tcKimlikNo))
+      next.tcKimlikNo = "TC Kimlik No 11 haneli olmalı";
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
+      next.email = "Geçerli bir e-posta adresi girin";
+    if (data.telefon && !/^\+?\d[\d\s-]{8,}$/.test(data.telefon))
+      next.telefon = "Geçerli bir telefon numarası girin";
+    if (data.hissePay != null && data.hissePay < 0)
+      next.hissePay = "Hisse payı 0'dan küçük olamaz";
+    if (data.hissePayda != null && data.hissePayda <= 0)
+      next.hissePayda = "Hisse payda 0'dan büyük olmalı";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const onCancel = () => {
+    setForm({ ...owner });
+    setErrors({});
+    setIsEditing(false);
+  };
+
+  const onSave = async () => {
+    if (!validate(form)) {
+      toast.error("Lütfen hatalı alanları düzeltin.");
+      return;
+    }
+    try {
+      setIsSaving(true);
+      // Simüle edilen kayıt; gerçek API entegrasyonunda burada await çağrısı yapılacak
+      await new Promise((r) => setTimeout(r, 400));
+      setIsEditing(false);
+      toast.success("Malik bilgileri başarıyla güncellendi.");
+    } catch (e) {
+      toast.error("Kaydetme sırasında bir hata oluştu.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Üst Aksiyonlar */}
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant={isEditing ? "outline" : "default"}
+          size="sm"
+          onClick={() => setIsEditing((v) => !v)}
+          aria-pressed={isEditing}
+        >
+          {isEditing ? (
+            <span className="inline-flex items-center gap-1">
+              <X className="h-4 w-4" /> Düzenlemeyi Kapat
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1">
+              <Pencil className="h-4 w-4" /> Düzenle
+            </span>
+          )}
+        </Button>
+      </div>
+
       {/* Temel Bilgiler */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Kişisel Bilgiler</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Ad Soyad:</span>
-              <span className="font-medium">
-                {owner.ad} {owner.soyad}
-              </span>
-            </div>
-            {owner.tcKimlikNo && (
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">
-                  TC Kimlik No:
-                </span>
-                <span className="font-medium">{owner.tcKimlikNo}</span>
+            {isEditing ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="ad">Ad</Label>
+                  <Input
+                    id="ad"
+                    value={form.ad}
+                    onChange={(e) => setForm({ ...form, ad: e.target.value })}
+                    aria-invalid={!!errors.ad}
+                    aria-describedby="ad-error"
+                  />
+                  <FieldError id="ad" message={errors.ad} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="soyad">Soyad</Label>
+                  <Input
+                    id="soyad"
+                    value={form.soyad}
+                    onChange={(e) =>
+                      setForm({ ...form, soyad: e.target.value })
+                    }
+                    aria-invalid={!!errors.soyad}
+                    aria-describedby="soyad-error"
+                  />
+                  <FieldError id="soyad" message={errors.soyad} />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="tcKimlikNo">TC Kimlik No</Label>
+                  <Input
+                    id="tcKimlikNo"
+                    value={form.tcKimlikNo ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, tcKimlikNo: e.target.value })
+                    }
+                    aria-invalid={!!errors.tcKimlikNo}
+                    aria-describedby="tcKimlikNo-error"
+                    inputMode="numeric"
+                  />
+                  <FieldError id="tcKimlikNo" message={errors.tcKimlikNo} />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="vergiNo">Vergi No</Label>
+                  <Input
+                    id="vergiNo"
+                    value={form.vergiNo ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, vergiNo: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="kimlikNo">Kimlik No</Label>
+                  <Input
+                    id="kimlikNo"
+                    value={form.kimlikNo}
+                    onChange={(e) =>
+                      setForm({ ...form, kimlikNo: e.target.value })
+                    }
+                  />
+                </div>
               </div>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Ad Soyad:
+                  </span>
+                  <span className="font-medium">
+                    {form.ad} {form.soyad}
+                  </span>
+                </div>
+                {form.tcKimlikNo && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      TC Kimlik No:
+                    </span>
+                    <span className="font-medium">{form.tcKimlikNo}</span>
+                  </div>
+                )}
+                {form.vergiNo && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Vergi No:
+                    </span>
+                    <span className="font-medium">{form.vergiNo}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Kimlik No:
+                  </span>
+                  <span className="font-medium">{form.kimlikNo}</span>
+                </div>
+              </>
             )}
-            {owner.vergiNo && (
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Vergi No:</span>
-                <span className="font-medium">{owner.vergiNo}</span>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Kimlik No:</span>
-              <span className="font-medium">{owner.kimlikNo}</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -429,47 +592,136 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
             <CardTitle className="text-sm">İletişim Bilgileri</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {owner.telefon && (
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{owner.telefon}</span>
+            {isEditing ? (
+              <div className="grid grid-cols-1 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="telefon">Telefon</Label>
+                  <Input
+                    id="telefon"
+                    value={form.telefon ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, telefon: e.target.value })
+                    }
+                    aria-invalid={!!errors.telefon}
+                    aria-describedby="telefon-error"
+                    inputMode="tel"
+                  />
+                  <FieldError id="telefon" message={errors.telefon} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="email">E-posta</Label>
+                  <Input
+                    id="email"
+                    value={form.email ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                    aria-invalid={!!errors.email}
+                    aria-describedby="email-error"
+                    inputMode="email"
+                  />
+                  <FieldError id="email" message={errors.email} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="adres">Adres</Label>
+                  <Textarea
+                    id="adres"
+                    value={form.adres ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, adres: e.target.value })
+                    }
+                    rows={3}
+                  />
+                </div>
               </div>
+            ) : (
+              <>
+                {form.telefon && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{form.telefon}</span>
+                  </div>
+                )}
+                {form.email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{form.email}</span>
+                  </div>
+                )}
+                <div className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <span className="text-sm">{form.adres}</span>
+                </div>
+              </>
             )}
-            {owner.email && (
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{owner.email}</span>
-              </div>
-            )}
-            <div className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <span className="text-sm">{owner.adres}</span>
-            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Hisse ve Süreç Bilgileri */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Hisse Bilgileri</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">
-                Hisse Oranı:
-              </span>
-              <span className="font-medium">
-                {owner.hissePay}/{owner.hissePayda}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Yüzde:</span>
-              <span className="font-medium">
-                %{((owner.hissePay / owner.hissePayda) * 100).toFixed(4)}
-              </span>
-            </div>
+            {isEditing ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="hissePay">Hisse Pay</Label>
+                  <Input
+                    id="hissePay"
+                    type="number"
+                    value={form.hissePay}
+                    onChange={(e) =>
+                      setForm({ ...form, hissePay: Number(e.target.value) })
+                    }
+                    aria-invalid={!!errors.hissePay}
+                    aria-describedby="hissePay-error"
+                    min={0}
+                  />
+                  <FieldError id="hissePay" message={errors.hissePay} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="hissePayda">Hisse Payda</Label>
+                  <Input
+                    id="hissePayda"
+                    type="number"
+                    value={form.hissePayda}
+                    onChange={(e) =>
+                      setForm({ ...form, hissePayda: Number(e.target.value) })
+                    }
+                    aria-invalid={!!errors.hissePayda}
+                    aria-describedby="hissePayda-error"
+                    min={1}
+                  />
+                  <FieldError id="hissePayda" message={errors.hissePayda} />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label>Yüzde</Label>
+                  <div className="text-sm font-medium">
+                    %{((form.hissePay / form.hissePayda) * 100).toFixed(4)}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Hisse Oranı:
+                  </span>
+                  <span className="font-medium">
+                    {form.hissePay}/{form.hissePayda}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Yüzde:</span>
+                  <span className="font-medium">
+                    %{((form.hissePay / form.hissePayda) * 100).toFixed(4)}
+                  </span>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -478,27 +730,98 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
             <CardTitle className="text-sm">Süreç Durumu</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center gap-2">
-              {getStatusIcon(owner.processStatus)}
-              <Badge className={getStatusColor(owner.processStatus)}>
-                {getStatusLabel(owner.processStatus)}
-              </Badge>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Son İşlem:</span>
-              <span className="font-medium">
-                {owner.sonIslemTarihi.toLocaleDateString("tr-TR")}
-              </span>
-            </div>
-            {owner.mahkemeEsasNo && (
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">
-                  Mahkeme Esas No:
-                </span>
-                <span className="font-medium text-priority-high">
-                  {owner.mahkemeEsasNo}
-                </span>
+            {isEditing ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>Durum</Label>
+                  <Select
+                    value={form.processStatus}
+                    onValueChange={(v) =>
+                      setForm({ ...form, processStatus: v as ProcessStatus })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Durum seçin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ProcessStatus.PAYMENT_COMPLETED}>
+                        Ödeme Tamamlandı
+                      </SelectItem>
+                      <SelectItem value={ProcessStatus.PAYMENT_PENDING}>
+                        Ödeme Yapılacak
+                      </SelectItem>
+                      <SelectItem value={ProcessStatus.LAWSUIT_PROCESS}>
+                        Dava Sürecinde
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="sonIslemTarihi">Son İşlem Tarihi</Label>
+                  <Input
+                    id="sonIslemTarihi"
+                    type="date"
+                    value={(form.sonIslemTarihi instanceof Date
+                      ? form.sonIslemTarihi
+                      : new Date(form.sonIslemTarihi)
+                    )
+                      .toISOString()
+                      .slice(0, 10)}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        sonIslemTarihi: new Date(e.target.value),
+                      })
+                    }
+                    aria-invalid={!!errors.sonIslemTarihi}
+                    aria-describedby="sonIslemTarihi-error"
+                  />
+                  <FieldError
+                    id="sonIslemTarihi"
+                    message={errors.sonIslemTarihi}
+                  />
+                </div>
+                <div className="space-y-1 sm:col-span-2">
+                  <Label htmlFor="mahkemeEsasNo">Mahkeme Esas No</Label>
+                  <Input
+                    id="mahkemeEsasNo"
+                    value={form.mahkemeEsasNo ?? ""}
+                    onChange={(e) =>
+                      setForm({ ...form, mahkemeEsasNo: e.target.value })
+                    }
+                  />
+                </div>
               </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  {getStatusIcon(form.processStatus)}
+                  <Badge className={getStatusColor(form.processStatus)}>
+                    {getStatusLabel(form.processStatus)}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Son İşlem:
+                  </span>
+                  <span className="font-medium">
+                    {(form.sonIslemTarihi instanceof Date
+                      ? form.sonIslemTarihi
+                      : new Date(form.sonIslemTarihi)
+                    ).toLocaleDateString("tr-TR")}
+                  </span>
+                </div>
+                {form.mahkemeEsasNo && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Mahkeme Esas No:
+                    </span>
+                    <span className="font-medium text-priority-high">
+                      {form.mahkemeEsasNo}
+                    </span>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
@@ -511,46 +834,135 @@ function OwnerDetailView({ owner }: { owner: PropertyOwner }) {
             <CardTitle className="text-sm">Ödeme Bilgileri</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-[oklch(var(--info)/0.10)] rounded">
-                <div className="text-lg font-bold text-info">
-                  {owner.odemeTutari.toLocaleString("tr-TR")} ₺
+            {isEditing ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="odemeTutari">Toplam Tutar (₺)</Label>
+                  <Input
+                    id="odemeTutari"
+                    type="number"
+                    value={form.odemeTutari ?? 0}
+                    onChange={(e) =>
+                      setForm({ ...form, odemeTutari: Number(e.target.value) })
+                    }
+                  />
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Toplam Tutar
+                <div className="space-y-1">
+                  <Label htmlFor="odenenTutar">Ödenen (₺)</Label>
+                  <Input
+                    id="odenenTutar"
+                    type="number"
+                    value={form.odenenTutar ?? 0}
+                    onChange={(e) =>
+                      setForm({ ...form, odenenTutar: Number(e.target.value) })
+                    }
+                  />
                 </div>
-              </div>
-              {owner.odenenTutar && (
-                <div className="text-center p-3 bg-[oklch(var(--success)/0.10)] rounded">
-                  <div className="text-lg font-bold text-success">
-                    {owner.odenenTutar.toLocaleString("tr-TR")} ₺
+                <div className="space-y-1">
+                  <Label htmlFor="kalanTutar">Kalan (₺)</Label>
+                  <Input
+                    id="kalanTutar"
+                    type="number"
+                    value={form.kalanTutar ?? 0}
+                    onChange={(e) =>
+                      setForm({ ...form, kalanTutar: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div className="sm:col-span-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Ödeme İlerlemesi</span>
+                    <span>{getPaymentProgress(form)}%</span>
                   </div>
-                  <div className="text-sm text-muted-foreground">Ödenen</div>
-                </div>
-              )}
-              {owner.kalanTutar && (
-                <div className="text-center p-3 bg-[oklch(var(--warning)/0.10)] rounded">
-                  <div className="text-lg font-bold text-warning">
-                    {owner.kalanTutar.toLocaleString("tr-TR")} ₺
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div
+                      className="bg-success h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${getPaymentProgress(form)}%` }}
+                    ></div>
                   </div>
-                  <div className="text-sm text-muted-foreground">Kalan</div>
                 </div>
-              )}
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Ödeme İlerlemesi</span>
-                <span>{getPaymentProgress(owner)}%</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div
-                  className="bg-success h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${getPaymentProgress(owner)}%` }}
-                ></div>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-[oklch(var(--info)/0.10)] rounded">
+                    <div className="text-lg font-bold text-info">
+                      {(form.odemeTutari ?? 0).toLocaleString("tr-TR")} ₺
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Toplam Tutar
+                    </div>
+                  </div>
+                  {form.odenenTutar !== undefined && (
+                    <div className="text-center p-3 bg-[oklch(var(--success)/0.10)] rounded">
+                      <div className="text-lg font-bold text-success">
+                        {(form.odenenTutar ?? 0).toLocaleString("tr-TR")} ₺
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Ödenen
+                      </div>
+                    </div>
+                  )}
+                  {form.kalanTutar !== undefined && (
+                    <div className="text-center p-3 bg-[oklch(var(--warning)/0.10)] rounded">
+                      <div className="text-lg font-bold text-warning">
+                        {(form.kalanTutar ?? 0).toLocaleString("tr-TR")} ₺
+                      </div>
+                      <div className="text-sm text-muted-foreground">Kalan</div>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Ödeme İlerlemesi</span>
+                    <span>{getPaymentProgress(form)}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div
+                      className="bg-success h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${getPaymentProgress(form)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
+      )}
+      {isEditing && (
+        <DialogFooter
+          className="sticky bottom-0 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t p-4 sm:p-6"
+          aria-live="polite"
+        >
+          <div className="flex items-center justify-end gap-2 w-full">
+            <Button
+              variant="ghost"
+              onClick={onCancel}
+              size="lg"
+              disabled={isSaving}
+            >
+              <span className="inline-flex items-center gap-1">
+                <X className="h-4 w-4" /> Vazgeç
+              </span>
+            </Button>
+            <Button
+              variant="default"
+              onClick={onSave}
+              size="lg"
+              disabled={isSaving}
+              aria-busy={isSaving}
+            >
+              <span className="inline-flex items-center gap-1">
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {isSaving ? "Kaydediliyor..." : "Kaydet"}
+              </span>
+            </Button>
+          </div>
+        </DialogFooter>
       )}
     </div>
   );
