@@ -1,31 +1,65 @@
-# shadcn/ui monorepo template
+# Camelot - Expropriation Management System
 
-This template is for creating a monorepo with shadcn/ui.
+Camelot is a comprehensive **Expropriation and Land Acquisition Management System** developed for public institutions and municipalities. It provides end-to-end digital management of project processes, owner information, payment tracking, and legal proceedings.
 
-## Usage
+## 🚀 Technologies
+
+This project is built on a modern technology stack:
+
+- **Framework:** [Next.js 15+](https://nextjs.org/) (App Router & Turbopack)
+- **UI Library:** [React 19](https://react.dev/) & [Shadcn UI](https://ui.shadcn.com/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Package Manager:** [Bun](https://bun.sh/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **State Management:** [TanStack Query v5](https://tanstack.com/query/latest)
+
+## 📦 Project Structure
+
+The project follows a monorepo (Turborepo) architecture:
+
+```text
+.
+├── apps/
+│   └── web/          # Main Next.js application
+├── packages/
+│   ├── ui/           # Shared UI components (Shadcn based)
+│   ├── eslint-config/# Shared ESLint configurations
+│   └── typescript-config/ # Shared TypeScript configurations
+└── package.json      # Monorepo root
+```
+
+## 🛠 Setup and Initializing
+
+**Bun** package manager is used in this project.
+
+### Install Dependencies
 
 ```bash
-pnpm dlx shadcn@latest init
+bun install
 ```
 
-## Adding components
-
-To add components to your app, run the following command at the root of your `web` app:
+### Start Development Server
 
 ```bash
-pnpm dlx shadcn@latest add button -c apps/web
+bun run dev
 ```
 
-This will place the ui components in the `packages/ui/src/components` directory.
+The application will be running at `http://localhost:3000` by default.
 
-## Tailwind
+## 🏗 Key Features
 
-Your `tailwind.config.ts` and `globals.css` are already set up to use the components from the `ui` package.
+- **Project Management:** Detailed tracking of Expropriation, Easement, Allocation, and Transfer projects.
+- **Owner Management:** Information on real estate owners, share ratios, and communication details.
+- **Process Tracking:** Management of notification, valuation, and reconciliation processes.
+- **Financial Tracking:** Payment statuses, budget analysis, and pending transactions.
+- **Legal Process:** Tracking of court files, judicial decisions, and legal stages.
+- **Modern UI:** Premium and responsive user interface built with Tailwind v4 and Shadcn UI.
 
-## Using components
+## 🚢 Deployment
 
-To use the components in your app, import them from the `ui` package.
+The project is configured to be automatically built and tested using GitHub Actions. See `.github/workflows/deploy.yml` for details.
 
-```tsx
-import { Button } from "@workspace/ui/components/button"
-```
+---
+
+**Developer:** SUKI General Directorate - Information Technology Department

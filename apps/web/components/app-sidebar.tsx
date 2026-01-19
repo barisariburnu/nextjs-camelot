@@ -135,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">Kamulaştırma</span>
                   <span className="truncate text-xs">
-                    Buski Genel Müdürlüğü
+                    SUKI Genel Müdürlüğü
                   </span>
                 </div>
               </a>

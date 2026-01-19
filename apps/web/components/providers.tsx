@@ -64,7 +64,7 @@ function generateSampleProjects(): Project[] {
   const projectTemplates = [
     // Kamulaştırma projeleri
     {
-      name: "Kamulaştırma - Bursa Büyükşehir Belediyesi / BUSKI Genel Müdürlüğü",
+      name: "Kamulaştırma",
       category: "Kamulaştırma",
       desc: "Büyükşehir belediyesi kamulaştırma işlemleri ve arazi edinimi süreçlerinin dijital yönetimi.",
     },
@@ -303,16 +303,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
     console.log("Providers useEffect running...");
     const existingData = queryClient.getQueryData<Project[]>(["projects"]);
     console.log("Existing projects data:", existingData?.length || 0);
-    
+
     if (!existingData || existingData.length === 0) {
       console.log("Initializing projects data with", sampleProjects.length, "projects");
       queryClient.setQueryData(["projects"], sampleProjects);
-      
+
       // Verify data was set
       const verifyData = queryClient.getQueryData<Project[]>(["projects"]);
       console.log("Verified projects data after setting:", verifyData?.length || 0);
     }
-    
+
     if (queryClient.getQueryData(["selected-project"]) === undefined) {
       queryClient.setQueryData(["selected-project"], null);
     }
