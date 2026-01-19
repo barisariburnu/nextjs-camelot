@@ -2,6 +2,12 @@
 
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
+  output: "export",
+  basePath: "/nextjs-camelot",
+  assetPrefix: "/nextjs-camelot/",
+  images: {
+    unoptimized: true,
+  },
 };
 
-export default nextConfig
+export default nextConfig;
