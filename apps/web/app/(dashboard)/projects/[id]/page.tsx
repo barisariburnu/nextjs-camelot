@@ -1,5 +1,15 @@
 "use client";
 
+// Bu fonksiyon statik export için gereklidir.
+// Proje ID'leri için gerekli statik parametreleri üretir.
+export async function generateStaticParams() {
+  // Demo amaçlı ilk 10 projenin sayfasını oluşturuyoruz.
+  // Daha fazla proje için dizi genişletilebilir.
+  return Array.from({ length: 25 }, (_, i) => ({
+    id: (i + 1).toString(),
+  }));
+}
+
 import { useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { ProjectSummaryComponent } from "@/components/project-summary";
@@ -312,10 +322,10 @@ export default function ProjectDetailPage() {
               </TooltipTrigger>
               <TooltipContent>{mockProject.ad || "Proje Detayları"}</TooltipContent>
             </Tooltip>
-             <p className="text-muted-foreground text-sm mt-1">
-               {mockProject.sorumluKisi} tarafından yönetiliyor
-             </p>
-           </div>
+            <p className="text-muted-foreground text-sm mt-1">
+              {mockProject.sorumluKisi} tarafından yönetiliyor
+            </p>
+          </div>
           <Badge variant={categoryBadge.variant}>{categoryBadge.text}</Badge>
         </div>
 
@@ -462,10 +472,10 @@ export default function ProjectDetailPage() {
                             variant="outline"
                             className={
                               owner.processStatus ===
-                              ProcessStatus.PAYMENT_COMPLETED
+                                ProcessStatus.PAYMENT_COMPLETED
                                 ? "bg-[oklch(var(--success)/0.15)] text-success border-[oklch(var(--success)/0.20)]"
                                 : owner.processStatus ===
-                                    ProcessStatus.PAYMENT_PENDING
+                                  ProcessStatus.PAYMENT_PENDING
                                   ? "bg-[oklch(var(--warning)/0.15)] text-warning border-[oklch(var(--warning)/0.20)]"
                                   : "bg-[oklch(var(--priority-high)/0.15)] text-priority-high border-[oklch(var(--priority-high)/0.20)]"
                             }
