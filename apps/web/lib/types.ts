@@ -131,3 +131,46 @@ export interface ProjectSummary {
   harcananTutar: number;
   kalanButce: number;
 }
+
+// Uzlaşma bilgileri
+export interface Settlement {
+  id: string;
+  ada: string;
+  parsel: string;
+  uzlasilanMalikSayisi: number;
+  uzlasilamayanMalikSayisi: number;
+  kalanMalikSayisi: number;
+  toplamMalikSayisi: number;
+  uzlasmaTarihi?: Date;
+  uzlasmaTutari?: number;
+}
+
+// Dava bilgileri
+export interface Lawsuit {
+  id: string;
+  ada: string;
+  parsel: string;
+  dosyaTuru: string;
+  mahkemeAdi: string;
+  esasNo: string;
+  kararNo?: string;
+  acilisTarihi: Date;
+  durusmaTarihi?: Date;
+  durum: string;
+  davaTutari?: number;
+  aciklama?: string;
+}
+
+// Ödeme özeti
+export interface PaymentSummary {
+  id: string;
+  ada: string;
+  parsel: string;
+  toplamMalikSayisi: number;
+  odenenMalikSayisi: number;
+  odenenTutar: number;
+  kalanMalikSayisi: number;
+  kalanTutar: number;
+  toplamTutar: number;
+  tamamlanmaOrani: number;
+}
